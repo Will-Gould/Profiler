@@ -68,7 +68,6 @@ public class Profiler extends JavaPlugin implements Listener{
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-
         this.cmdHandler.handleCommand(sender, label, args);
         return true;
     }
