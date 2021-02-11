@@ -6,10 +6,6 @@ players use and to add notes to their profiles as a permanent record on a player
 ## Building
 Profiler uses Gradle to handle dependencies & building.
 
-#### Requirements
-* Java 8 JDK or newer
-* Git
-
 #### Compiling from source
 ```sh
 git clone https://github.com/The-Juice-Man/Profiler.git
