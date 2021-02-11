@@ -20,7 +20,6 @@ import java.util.UUID;
         usage = "/resolve <name>"
 )
 
-
 public class Resolve implements Command {
 
     @Override

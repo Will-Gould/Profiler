@@ -79,13 +79,11 @@ public class CommandHandler {
             //e.printStackTrace();
             this.profiler.getLogger().severe("An error occurred while executing this command");
         }
-
     }
 
     private void showUsage(CommandSender sender, Command command) {
         CommandInfo info = command.getClass().getAnnotation(CommandInfo.class);
         if(!sender.hasPermission(info.permission())) return;
-
         sender.sendMessage(info.usage());
     }
 
@@ -110,13 +108,11 @@ public class CommandHandler {
 
     private List<Command> getMatches(String command) {
         List<Command> result = new ArrayList<>();
-
         for(Map.Entry<String, Command> entry : commands.entrySet()) {
             if(command.matches(entry.getKey())) {
                 result.add(entry.getValue());
             }
         }
-
         return result;
     }
 

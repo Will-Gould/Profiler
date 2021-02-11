@@ -33,8 +33,7 @@ public class MySQL {
         try{
             con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
         }catch(Exception e){
-            //TODO Error message system
-
+            e.printStackTrace();
         }finally {
             if(con != null){
                 try{con.close();}catch(Exception e){}
@@ -74,7 +73,7 @@ public class MySQL {
             sql = con.prepareStatement(query);
             sql.execute();
         }catch(Exception e){
-            //TODO Error handling
+            e.printStackTrace();
         }finally {
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
@@ -133,9 +132,7 @@ public class MySQL {
                         sql.setTimestamp(4, currentTimestamp);
                         sql.execute();
                     }
-
                 }
-
             }else{
                 //Create new profile entry
                 sql = con.prepareStatement("INSERT INTO `" + this.prefix + "profiles` (uuid, name, ip, last_online) values(?, ?, ?, ?);");
@@ -155,7 +152,6 @@ public class MySQL {
                 try{con.close();}catch(Exception e){}
             }
         }
-
     }
 
     public void insertProfile(PlayerData player){
@@ -165,7 +161,6 @@ public class MySQL {
 
         try{
             con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
-
             //Create new profile entry
             sql = con.prepareStatement("INSERT INTO `" + this.prefix + "profiles` (uuid, name, ip, last_online) values(?, ?, ?, ?);");
             sql.setString(1, player.getUuid());
@@ -183,7 +178,6 @@ public class MySQL {
                 try{con.close();}catch(Exception e){}
             }
         }
-
     }
 
     public void addNote(String note, String uuid, String senderName){
@@ -197,7 +191,7 @@ public class MySQL {
             sql.setString(3, note);
             sql.execute();
         }catch(Exception e){
-
+            e.printStackTrace();
         }finally{
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
@@ -250,8 +244,7 @@ public class MySQL {
             sql = con.prepareStatement("SELECT * FROM `" + prefix + "profiles` WHERE uuid=?;");
             sql.setString(1, uuid.toString());
             results = sql.executeQuery();
-            boolean containsPlayer = results.next();
-            return containsPlayer;
+            return results.next();
         }catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -369,7 +362,6 @@ public class MySQL {
                 try{con.close();}catch(Exception e){}
             }
         }
-
     }
 
     public PlayerData getCurrentProfile(ArrayList<PlayerData> profiles){
@@ -388,7 +380,6 @@ public class MySQL {
 
     public PlayerData getCurrentProfile(String uuid){
         UUID u = UUID.fromString(uuid);
-
         PlayerData result = getCurrentProfile(getPlayerProfiles(u));
         return result;
     }
@@ -407,11 +398,9 @@ public class MySQL {
     public boolean isCurrentName(String name, String uuid){
         UUID u = UUID.fromString(uuid);
         PlayerData current = getCurrentProfile(getPlayerProfiles(u));
-
         if(name.equals(current.getName())){
             return true;
         }
         return false;
     }
-
 }

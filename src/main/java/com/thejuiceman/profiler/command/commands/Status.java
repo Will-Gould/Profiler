@@ -29,7 +29,6 @@ public class Status implements Command {
 
         MySQL mysql = cmdHandler.getProfiler().getMysql();
         Util util = new Util();
-        Player player = (Player) sender;
         String targetPlayer = args[0];
 
         //Get possible players and check if player exists in database
@@ -88,7 +87,6 @@ public class Status implements Command {
         sender.sendMessage(playerNameFormat);
         sendPlayerData(player, sender, util, cmdHandler);
         sendNotes(player, sender, cmdHandler);
-        return;
     }
 
     private void sendPossibleTargets(ArrayList<PlayerData> profiles, CommandSender sender, Util util, CommandHandler cmdHandler){
@@ -126,11 +124,11 @@ public class Status implements Command {
 
     private void sendNotes(PlayerData p, CommandSender sender, CommandHandler cmdHandler){
 
-        /*****
+        /*
          Currently this is set up so users cannot see their own notes unless they have special permission
          It also assumes that people who can view their own notes can also view the notes of others. This
          is how I like it but it may not be ideal for others. I may have to change this.
-         ***/
+         */
 
         //Check if player is viewing their own status only let them see their own notes if they have permission
         Player player = (Player) sender;

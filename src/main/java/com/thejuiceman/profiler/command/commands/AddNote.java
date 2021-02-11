@@ -105,38 +105,6 @@ public class AddNote implements Command {
             sender.sendMessage(ChatColor.GOLD + "Succesfully added note to player: " + ChatColor.WHITE + playerNameFormat);
             return true;
         }
-
-
-        /********************************************************************************************************
-
-         Because Minecraft player names can change there are edge cases where there may be multiple people in the
-         database with the same name. Therefore the only way to be certain of a player when adding notes/checking
-         player status' is to type in the target player's UUID. I think this is far too impractical so for edge
-         cases when there are more than 1 possible candidates to add a note to the command will return with a
-         message to the user stating that an edge case has been reached and to use the /profiler resolve command
-         to manually fetch the conflicting names' uuids and get their current names from Mojang API
-
-         If there are multiple entries for the same uuid the plugin will recognise the entry with the latest
-         "last_online" date to the the current username of that player.
-
-         If there are multiple people for which a note can be added to the user will be notified if they try
-         and instructed to use a command which will resolve the differences by finding all the players in the
-         database who have had that name and determine which one (if any) are currently using the disputed
-         name. It will update every affected players name by fetching their data from Mojang api and creating new
-         entries into the profiles database with the uuid and current name
-
-         When using /status it may be useful to note if other players have used this name before and what their
-         names currently are.
-
-         If you look up someone using their old name make it retrieve their current name
-
-         An administrator wants to add a note to a player called "The_Juice_Mans"
-         He types "/note The_Juice_Mans Caught x-ray cheating and given 30min jail time"
-         An error appears telling him about the conflict and instructs him to use the command
-         /profiler update The_Juice_Mans
-
-         *******************************************************************************************************/
-
         return true;
     }
 }
