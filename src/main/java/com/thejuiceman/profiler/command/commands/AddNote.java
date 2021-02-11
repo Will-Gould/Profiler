@@ -42,69 +42,52 @@ public class AddNote implements Command {
         }
 
         //Get array of possible target players
-        ArrayList<PlayerData> players = mysql.getProfilesByName(playerName);
+        ArrayList<PlayerData> profiles = mysql.getProfilesByName(playerName);
 
         //Check if there are any matches
-        if(players == null){
+        if(profiles== null){
             sender.sendMessage("Could not find a player by that name! Names are case sensitive");
             return true;
         }
 
-        //Check if there are multiple possible targets
-        if(players.size() > 1){
-            //Check if duplicate name entries are old usernames of different players
-            //Create an array of playerdata that contains all the profile entries of player with that
-            int currentNames = players.size();
-            for(PlayerData p : players){
-                if(!mysql.isCurrentName(p.getName(), p.getUuid())){
-                    currentNames--;
-                }
+        //Check which matches are current profiles and which are old profiles
+        ArrayList<PlayerData> currentProfiles = new ArrayList<>();
+        ArrayList<PlayerData> oldProfiles = new ArrayList<>();
+        for(PlayerData p : profiles) {
+            if (mysql.isCurrentName(p.getName(), p.getUuid())) {
+                currentProfiles.add(p);
+            } else {
+                oldProfiles.add(p);
             }
+        }
 
-            //If counter > 1 that means there are multiple people which this new note could apply too and
-            //an edge case has been reached. Tell the command sender to use command to resolve conflicts
-            if(currentNames > 1){
-                sender.sendMessage("It appears that multiple users currently use this name in our database use /profiler resolve <uuid> to resolve conflicts");
-                sender.sendMessage("Possible uuids:");
-                for(PlayerData p : players){
-                    if(mysql.isCurrentName(p.getName(), p.getUuid())){
-                        sender.sendMessage(" - " + p.getUuid());
-                    }
-                }
-                return true;
-            }
-
-            //If counter == 0 that means someone's old username is trying to be used
-            //List to the user possible player name(s)
-            if(currentNames == 0){
-                sender.sendMessage("No players are currently using that name! Did you mean...");
-                for(PlayerData p : players){
+        //If no current names then loop through suggested targets (if any)
+        if(currentProfiles.size() < 1){
+            sender.sendMessage("No players are currently using that name!");
+            if(oldProfiles.size() > 0){
+                sender.sendMessage("Did you mean...");
+                for(PlayerData p : oldProfiles){
                     sender.sendMessage(" - " + mysql.getCurrentProfile(p.getUuid()).getName());
                 }
-                return true;
             }
-
-        }else{
-            //Check if the only match is an old name (and therefore invalid)
-            if(!mysql.isCurrentName(players.get(0).getName(), players.get(0).getUuid())){
-                sender.sendMessage("No players are currently using that name! Did you mean...");
-                for(PlayerData p : players){
-                    sender.sendMessage(" - " + mysql.getCurrentProfile(p.getUuid()).getName());
-                }
-                return true;
-            }
-            //There is only one possible target add the note
-            uuid = players.get(0).getUuid();
-            try{
-                playerNameFormat = ChatColor.translateAlternateColorCodes('&', cmdHandler.getProfiler().util.getPrefix(cmdHandler.getProfiler(), uuid) + playerName);
-            }catch(Exception e){
-
-            }
-
-            mysql.addNote(note, uuid, sender.getName());
-            sender.sendMessage(ChatColor.GOLD + "Succesfully added note to player: " + ChatColor.WHITE + playerNameFormat);
             return true;
         }
+
+        if(currentProfiles.size() > 1){
+            sender.sendMessage(ChatColor.RED + "WARNING:" + ChatColor.GRAY + "It appears that multiple users currently use this name in our database use:" + ChatColor.AQUA + "/resolve <name>" + ChatColor.GRAY + "to resolve conflicts");
+            return true;
+        }
+
+        //There is only one possible target add the note
+        uuid = currentProfiles.get(0).getUuid();
+        try{
+            playerNameFormat = ChatColor.translateAlternateColorCodes('&', cmdHandler.getProfiler().util.getPrefix(cmdHandler.getProfiler(), uuid) + playerName);
+        }catch(Exception e){
+
+        }
+        mysql.addNote(note, uuid, sender.getName());
+        sender.sendMessage(ChatColor.GOLD + "Succesfully added note to player: " + ChatColor.WHITE + playerNameFormat);
         return true;
+
     }
 }
