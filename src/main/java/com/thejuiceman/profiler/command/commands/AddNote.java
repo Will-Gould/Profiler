@@ -85,7 +85,7 @@ public class AddNote implements Command {
         }catch(Exception e){
 
         }
-        mysql.addNote(note, uuid, sender.getName());
+        mysql.addNote(note, uuid, player.getUniqueId().toString());
         sender.sendMessage(ChatColor.GOLD + "Succesfully added note to player: " + ChatColor.WHITE + playerNameFormat);
         return true;
 

@@ -15,10 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
-//TODO I may change the way notes are stored. Instead of storing the name of the staff member who added the note perhaps I would be better off using their UUID
-//TODO It would add a bit more complexity to the way notes are viewed by the player as to get name of the staff member who added it I would have to look up their
-//TODO UUID in the database to get their name
-
 public class Profiler extends JavaPlugin implements Listener{
 
     private CommandHandler cmdHandler;

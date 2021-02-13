@@ -49,7 +49,7 @@ public class MySQL {
                 "noteid int KEY NOT NULL AUTO_INCREMENT, " +
                 "uuid varchar(255), " +
                 "time timestamp DEFAULT CURRENT_TIMESTAMP, " +
-                "staff_name varchar(20), " +
+                "staff_uuid varchar(255), " +
                 "note varchar(255) " +
                 ");";
 
@@ -180,14 +180,14 @@ public class MySQL {
         }
     }
 
-    public void addNote(String note, String uuid, String senderName){
+    public void addNote(String note, String uuid, String staffUuid){
         Connection con = null;
         PreparedStatement sql = null;
         try{
             con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
-            sql = con.prepareStatement("INSERT INTO `" + prefix + "notes` (uuid, staff_name, note) VALUES(?, ?, ?);");
+            sql = con.prepareStatement("INSERT INTO `" + prefix + "notes` (uuid, staff_uuid, note) VALUES(?, ?, ?);");
             sql.setString(1, uuid);
-            sql.setString(2, senderName);
+            sql.setString(2, staffUuid);
             sql.setString(3, note);
             sql.execute();
         }catch(Exception e){
@@ -215,7 +215,7 @@ public class MySQL {
 
             Note n;
             while(results.next()){
-                n = new Note(results.getString("uuid"), results.getString("staff_name"), results.getString("note"), results.getTimestamp("time"));
+                n = new Note(results.getString("uuid"), results.getString("staff_uuid"), results.getString("note"), results.getTimestamp("time"));
                 notes.add(n);
             }
             return notes;
