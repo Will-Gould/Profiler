@@ -50,7 +50,7 @@ public class Status implements Command {
             }
         }
 
-        //There are no current users by that name but there are old ones
+        //There are no current users by that name but there are multiple old ones send possible targets
         //If there is only one old profile return the current profile of the old one
         if(currentProfiles.size() == 0 && oldProfiles.size() > 0){
             if(oldProfiles.size() == 1){
@@ -84,6 +84,7 @@ public class Status implements Command {
     }
 
     private void sendStatus(PlayerData player, CommandSender sender, Util util, CommandHandler cmdHandler){
+        sender.sendMessage(ChatColor.AQUA + "================" + ChatColor.GREEN + "Player Profile" + ChatColor.AQUA + "================");
         String playerNameFormat = util.formatName(player.getName(), player.getUuid(), cmdHandler.getProfiler());
         sender.sendMessage(playerNameFormat);
         sendPlayerData(player, sender, util, cmdHandler);
