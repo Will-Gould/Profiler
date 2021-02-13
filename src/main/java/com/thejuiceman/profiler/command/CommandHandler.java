@@ -13,6 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This plugin uses a Command handling system based off the Jail plugin written by graywolf336
+ */
+
 public class CommandHandler {
 
     private LinkedHashMap<String, Command> commands;
