@@ -12,11 +12,8 @@ public class Util {
     public String getPrefix(Profiler profiler, String uuid) throws Exception {
 
         if(profiler.getChat() != null){
-            //TODO change world (I think it might be fixed??)
-            //System.out.println(profiler.getChat().getGroupPrefix("world", getRank(profiler, uuid)) + "bruh");
             return profiler.getChat().getGroupPrefix(Bukkit.getServer().getWorlds().get(0), getRank(profiler, uuid));
         }else{
-            System.out.println("Error getting prefix");
             throw new Exception("No chat plugin hooked!");
         }
     }
@@ -29,16 +26,12 @@ public class Util {
 
     public boolean isOnline(String uuid) {
         Player player = Bukkit.getServer().getPlayer(UUID.fromString(uuid));
-        if(player != null) {
-            return true;
-        }
-        return false;
+        return player != null;
     }
 
     public String formatName(String name, String uuid, Profiler profiler){
         try{
-            String output = ChatColor.translateAlternateColorCodes('&', getPrefix(profiler, uuid) + name);
-            return output;
+            return ChatColor.translateAlternateColorCodes('&', getPrefix(profiler, uuid) + name);
         }catch(Exception e){
             return name;
         }

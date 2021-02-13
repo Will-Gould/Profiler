@@ -3,6 +3,7 @@ package com.thejuiceman.profiler;
 import com.thejuiceman.profiler.command.CommandHandler;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -45,19 +46,27 @@ public class Profiler extends JavaPlugin implements Listener{
 
         mysql.createDatabase();
 
-        //Hook into permissions and chat
-        setupPermission();
-        setupChat();
-        if(perms != null) {
-            System.out.println("[" + this.getName() + "] " + perms.getName() +  " hooked!");
-        }else {
-            System.out.println("No permissions found");
-        }
+        //Check if Vault is loaded then hook into permissions and chat
+        if(Bukkit.getServer().getPluginManager().getPlugin("Vault") != null){
+            if(Bukkit.getServer().getPluginManager().getPlugin("Vault").isEnabled()){
+                setupPermission();
+                setupChat();
+                if(perms != null) {
+                    System.out.println("[" + this.getName() + "] " + perms.getName() +  " hooked!");
+                }else {
+                    System.out.println("No permissions found");
+                }
 
-        if(chat != null) {
-            System.out.println("[" + this.getName() + "] " + chat.getName() +  " hooked!");
-        }else {
-            System.out.println("[" + this.getName() + "] " + "Not chat plugin found!");
+                if(chat != null) {
+                    System.out.println("[" + this.getName() + "] " + chat.getName() +  " hooked!");
+                }else {
+                    System.out.println("[" + this.getName() + "] " + "No chat plugin found!");
+                }
+            }else{
+                System.out.println("Vault is not enabled!");
+            }
+        }else{
+            System.out.println("Vault not found!");
         }
 
         getServer().getPluginManager().registerEvents(this, this);
