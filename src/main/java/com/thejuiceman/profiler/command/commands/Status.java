@@ -24,11 +24,12 @@ import java.util.ArrayList;
 
 public class Status implements Command {
 
+    Util util = new Util();
+
     @Override
     public boolean execute(CommandHandler cmdHandler, CommandSender sender, String... args) throws Exception {
 
         MySQL mysql = cmdHandler.getProfiler().getMysql();
-        Util util = new Util();
         String targetPlayer = args[0];
 
         //Get possible players and check if player exists in database
@@ -147,7 +148,14 @@ public class Status implements Command {
             }
 
             for(Note n : notes){
-                sender.sendMessage(ChatColor.GOLD + " + " + ChatColor.GRAY + n.getNote() + ChatColor.LIGHT_PURPLE + " - added by: " + n.getNoter());
+                String noterName = cmdHandler.getProfiler().getMysql().getCurrentProfile(n.getNoter()).getName();
+                String noterNameFormat = noterName;
+                try{
+                    noterNameFormat = util.formatName(noterName, n.getNoter(), cmdHandler.getProfiler());
+                }catch(Exception e){
+
+                }
+                sender.sendMessage(ChatColor.GOLD + " + " + ChatColor.GRAY + n.getNote() + ChatColor.LIGHT_PURPLE + " - added by: " + noterNameFormat);
             }
         }
     }
