@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandInfo {
     /**
-     * Gets the maximum amount of arguments required, -1 if no maximum (ex: Jailing someone with a reason or editing a reason).
+     * Gets the maximum amount of arguments required, -1 if no maximum.
      *
      * @return The maximum number of arguments required, -1 if no maximum.
      */
@@ -27,7 +27,7 @@ public @interface CommandInfo {
     public boolean needsPlayer();
 
     /**
-     * A regex pattern that allows for alternatives to the command (ex: /jail or /j, /jailstatus or /js).
+     * A regex pattern that allows for alternatives to the command.
      *
      * @return The regex pattern to match.
      */
@@ -47,10 +47,4 @@ public @interface CommandInfo {
      */
     public String usage();
 
-    /**
-     * Gets the help messages for this command, color codes enabled.
-     *
-     * @return List of message strings to send as help.
-     */
-    //public String[] help();
 }
