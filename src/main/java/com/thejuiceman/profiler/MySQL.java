@@ -16,6 +16,7 @@ public class MySQL {
     protected String password;
     private String prefix;
     private Profiler profiler;
+    private String url;
 
     public MySQL(Profiler profiler){
         host        = profiler.getConfig().getString("mysql.host");
@@ -25,13 +26,14 @@ public class MySQL {
         password    = profiler.getConfig().getString("mysql.password");
         prefix      = profiler.getConfig().getString("mysql.prefix");
 
+        this.url = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?autoReconnect=true&useSSL=false";
         this.profiler = profiler;
     }
 
     public boolean testConnection(){
         Connection con = null;
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
         }catch(Exception e){
             e.printStackTrace();
         }finally {
@@ -69,7 +71,7 @@ public class MySQL {
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement(query);
             sql.execute();
         }catch(Exception e){
@@ -95,7 +97,7 @@ public class MySQL {
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
 
             if(playerDataContainsPlayer(event.getPlayer().getUniqueId())){
                 //Get a list of possible player names
@@ -160,7 +162,7 @@ public class MySQL {
         Timestamp currentTimestamp = new Timestamp(Calendar.getInstance().getTime().getTime());
 
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             //Create new profile entry
             sql = con.prepareStatement("INSERT INTO `" + this.prefix + "profiles` (uuid, name, ip, last_online) values(?, ?, ?, ?);");
             sql.setString(1, player.getUuid());
@@ -184,7 +186,7 @@ public class MySQL {
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("INSERT INTO `" + prefix + "notes` (uuid, staff_uuid, note) VALUES(?, ?, ?);");
             sql.setString(1, uuid);
             sql.setString(2, staffUuid);
@@ -208,7 +210,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<Note> notes = new ArrayList<>();
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("SELECT * FROM " + prefix + "notes WHERE uuid=?;");
             sql.setString(1, player.getUuid());
             results = sql.executeQuery();
@@ -240,7 +242,7 @@ public class MySQL {
         ResultSet results = null;
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("SELECT * FROM `" + prefix + "profiles` WHERE uuid=?;");
             sql.setString(1, uuid.toString());
             results = sql.executeQuery();
@@ -267,7 +269,7 @@ public class MySQL {
         ResultSet results = null;
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("SELECT * FROM `" + prefix + "profiles` WHERE uuid=? AND name=?;");
             sql.setString(1, uuid.toString());
             sql.setString(2, name);
@@ -296,7 +298,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<PlayerData> profiles = new ArrayList<>();
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("SELECT * FROM " + prefix + "profiles WHERE uuid=?;");
             sql.setString(1, uuid.toString());
             results = sql.executeQuery();
@@ -331,7 +333,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<PlayerData> profiles = new ArrayList<>();
         try{
-            con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password);
+            con = DriverManager.getConnection(this.url, this.username, this.password);
             sql = con.prepareStatement("SELECT * FROM " + prefix + "profiles WHERE name=?;");
             sql.setString(1, name);
             results = sql.executeQuery();
