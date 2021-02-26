@@ -34,10 +34,12 @@ public class Profiler extends JavaPlugin implements Listener{
         mysql = new MySQL(this);
 
         //Test mysql connection
-        if(!mysql.testConnection()){
-            //TODO Error message system
-            System.out.println("Unable to connect to database!");
-            //TODO disable plugin
+        try{
+            mysql.openConnection();
+        }catch (Exception e){
+            System.out.println("Unable to connect to MySQL database!");
+        }finally{
+            try{mysql.closeConnection();}catch(Exception e){}
         }
 
         mysql.createDatabase();
@@ -79,7 +81,14 @@ public class Profiler extends JavaPlugin implements Listener{
 
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event){
-        this.mysql.updatePlayerLogin(event);
+        try{
+            this.mysql.openConnection();
+            this.mysql.updatePlayerLogin(event);
+        }catch(Exception e){
+
+        }finally {
+            try{mysql.closeConnection();}catch(Exception e){}
+        }
     }
 
     private boolean setupPermission(){
