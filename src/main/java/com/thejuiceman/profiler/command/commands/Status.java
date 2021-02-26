@@ -8,6 +8,7 @@ import com.thejuiceman.profiler.command.Command;
 import com.thejuiceman.profiler.command.CommandHandler;
 import com.thejuiceman.profiler.command.CommandInfo;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -32,55 +33,72 @@ public class Status implements Command {
         MySQL mysql = cmdHandler.getProfiler().getMysql();
         String targetPlayer = args[0];
 
-        //Get possible players and check if player exists in database
-        ArrayList<PlayerData> profiles = mysql.getProfilesByName(targetPlayer);
-        if(profiles == null){
-            sender.sendMessage("Could not find a player by that name!");
-            return true;
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(cmdHandler.getProfiler(), new Runnable() {
+            @Override
+            public void run() {
 
-        //Check which ones are current names
-        ArrayList<PlayerData> currentProfiles = new ArrayList<>();
-        ArrayList<PlayerData> oldProfiles = new ArrayList<>();
-        for(PlayerData p : profiles) {
-            if (mysql.isCurrentName(p.getName(), p.getUuid())) {
-                currentProfiles.add(p);
-            } else {
-                oldProfiles.add(p);
-            }
-        }
+                //MAKE DATABASE CONNECTION
+                try{
+                    mysql.openConnection();
 
-        //There are no current users by that name but there are multiple old ones send possible targets
-        //If there is only one old profile return the current profile of the old one
-        if(currentProfiles.size() == 0 && oldProfiles.size() > 0){
-            if(oldProfiles.size() == 1){
-                //Use current profile of old profile
-                sender.sendMessage("Did you mean...");
-                sendStatus(mysql.getCurrentProfile(oldProfiles.get(0).getUuid()), sender, util, cmdHandler);
-            }else{
-                sender.sendMessage("No current users found by that name. Did you mean...");
-                sendPossibleTargets(oldProfiles, sender, util, cmdHandler);
-            }
-            return true;
-        }
+                    //Get possible players and check if player exists in database
+                    ArrayList<PlayerData> profiles = mysql.getProfilesByName(targetPlayer);
+                    if(profiles == null){
+                        sender.sendMessage("Could not find a player by that name!");
+                        return;
+                    }
 
-        //Only current profiles to be displayed.
-        if(currentProfiles.size() > 0){
-            if(currentProfiles.size() > 1){
-                sender.sendMessage(ChatColor.RED + "WARNING" + ChatColor.GRAY + ": There are currently 2 players stored with that username. Notify a staff member to resolve this conflict.");
+                    //Check which ones are current names
+                    ArrayList<PlayerData> currentProfiles = new ArrayList<>();
+                    ArrayList<PlayerData> oldProfiles = new ArrayList<>();
+                    for(PlayerData p : profiles) {
+                        if (mysql.isCurrentName(p.getName(), p.getUuid())) {
+                            currentProfiles.add(p);
+                        } else {
+                            oldProfiles.add(p);
+                        }
+                    }
+
+                    //There are no current users by that name but there are multiple old ones send possible targets
+                    //If there is only one old profile return the current profile of the old one
+                    if(currentProfiles.size() == 0 && oldProfiles.size() > 0){
+                        if(oldProfiles.size() == 1){
+                            //Use current profile of old profile
+                            sender.sendMessage("Did you mean...");
+                            sendStatus(mysql.getCurrentProfile(oldProfiles.get(0).getUuid()), sender, util, cmdHandler);
+                        }else{
+                            sender.sendMessage("No current users found by that name. Did you mean...");
+                            sendPossibleTargets(oldProfiles, sender, util, cmdHandler);
+                        }
+                        return;
+                    }
+
+                    //Only current profiles to be displayed.
+                    if(currentProfiles.size() > 0){
+                        if(currentProfiles.size() > 1){
+                            sender.sendMessage(ChatColor.RED + "WARNING" + ChatColor.GRAY + ": There are currently 2 players stored with that username. Notify a staff member to resolve this conflict.");
+                        }
+                        for(PlayerData p : currentProfiles){
+                            sendStatus(p, sender, util, cmdHandler);
+                        }
+                        //Check and notify if there are user who have previously used this name
+                        if(oldProfiles.size() > 0){
+                            sender.sendMessage(ChatColor.AQUA + "The following players have also previously used this name:");
+                            sendPossibleTargets(oldProfiles, sender, util, cmdHandler);
+                        }
+                    }
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                }finally{
+                    //CLOSE CONNECTION
+                    try{mysql.closeConnection();}catch(Exception e){}
+                }
             }
-            for(PlayerData p : currentProfiles){
-                sendStatus(p, sender, util, cmdHandler);
-            }
-            //Check and notify if there are user who have previously used this name
-            if(oldProfiles.size() > 0){
-                sender.sendMessage(ChatColor.AQUA + "The following players have also previously used this name:");
-                sendPossibleTargets(oldProfiles, sender, util, cmdHandler);
-            }
-            return true;
-        }
+        });
 
         return true;
+
     }
 
     private void sendStatus(PlayerData player, CommandSender sender, Util util, CommandHandler cmdHandler){
@@ -141,6 +159,7 @@ public class Status implements Command {
 
         //Check if sender has permission to view notes
         if(sender.hasPermission("profiler.notes")){
+
             ArrayList<Note> notes = cmdHandler.getProfiler().getMysql().getNotes(p);
             //Check if there was an error getting notes
             if(notes == null){

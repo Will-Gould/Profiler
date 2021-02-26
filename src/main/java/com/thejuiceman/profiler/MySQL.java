@@ -17,6 +17,7 @@ public class MySQL {
     private String prefix;
     private Profiler profiler;
     private String url;
+    private Connection connection;
 
     public MySQL(Profiler profiler){
         host        = profiler.getConfig().getString("mysql.host");
@@ -30,20 +31,12 @@ public class MySQL {
         this.profiler = profiler;
     }
 
-    public boolean testConnection(){
-        Connection con = null;
-        try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
-        }catch(Exception e){
-            e.printStackTrace();
-        }finally {
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-                return true;
-            }else{
-                return false;
-            }
-        }
+    public void openConnection() throws Exception{
+        this.connection = DriverManager.getConnection(this.url, this.username, this.password);
+    }
+
+    public void closeConnection() throws Exception{
+        this.connection.close();
     }
 
     public void createDatabase(){
@@ -63,26 +56,26 @@ public class MySQL {
                 "last_online timestamp DEFAULT CURRENT_TIMESTAMP " +
                 ");";
 
-        update(notesTable);
-        update(profilesTable);
+        try{
+            openConnection();
+            update(notesTable);
+            update(profilesTable);
+        }catch (Exception e){
+
+        }finally {
+            try{closeConnection();}catch(Exception e){}
+        }
     }
 
     public void update(String query){
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement(query);
             sql.execute();
         }catch(Exception e){
             e.printStackTrace();
-        }finally {
-            if(sql != null){
-                try{sql.close();}catch(Exception e){}
-            }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -97,7 +90,7 @@ public class MySQL {
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
 
             if(playerDataContainsPlayer(event.getPlayer().getUniqueId())){
                 //Get a list of possible player names
@@ -146,13 +139,6 @@ public class MySQL {
             }
         }catch(Exception e){
             e.printStackTrace();
-        }finally{
-            if(sql != null){
-                try{sql.close();}catch(Exception e){}
-            }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -162,7 +148,7 @@ public class MySQL {
         Timestamp currentTimestamp = new Timestamp(Calendar.getInstance().getTime().getTime());
 
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             //Create new profile entry
             sql = con.prepareStatement("INSERT INTO `" + this.prefix + "profiles` (uuid, name, ip, last_online) values(?, ?, ?, ?);");
             sql.setString(1, player.getUuid());
@@ -172,13 +158,6 @@ public class MySQL {
             sql.execute();
         }catch(Exception e){
             e.printStackTrace();
-        }finally{
-            if(sql != null){
-                try{sql.close();}catch(Exception e){}
-            }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -186,7 +165,7 @@ public class MySQL {
         Connection con = null;
         PreparedStatement sql = null;
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("INSERT INTO `" + prefix + "notes` (uuid, staff_uuid, note) VALUES(?, ?, ?);");
             sql.setString(1, uuid);
             sql.setString(2, staffUuid);
@@ -194,13 +173,6 @@ public class MySQL {
             sql.execute();
         }catch(Exception e){
             e.printStackTrace();
-        }finally{
-            if(sql != null){
-                try{sql.close();}catch(Exception e){}
-            }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -210,7 +182,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<Note> notes = new ArrayList<>();
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("SELECT * FROM " + prefix + "notes WHERE uuid=?;");
             sql.setString(1, player.getUuid());
             results = sql.executeQuery();
@@ -230,9 +202,6 @@ public class MySQL {
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
             }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -242,7 +211,7 @@ public class MySQL {
         ResultSet results = null;
 
         try {
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("SELECT * FROM `" + prefix + "profiles` WHERE uuid=?;");
             sql.setString(1, uuid.toString());
             results = sql.executeQuery();
@@ -257,9 +226,6 @@ public class MySQL {
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
             }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -269,7 +235,7 @@ public class MySQL {
         ResultSet results = null;
 
         try {
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("SELECT * FROM `" + prefix + "profiles` WHERE uuid=? AND name=?;");
             sql.setString(1, uuid.toString());
             sql.setString(2, name);
@@ -286,9 +252,6 @@ public class MySQL {
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
             }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
     }
 
@@ -298,7 +261,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<PlayerData> profiles = new ArrayList<>();
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("SELECT * FROM " + prefix + "profiles WHERE uuid=?;");
             sql.setString(1, uuid.toString());
             results = sql.executeQuery();
@@ -320,9 +283,6 @@ public class MySQL {
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
             }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
-            }
         }
 
     }
@@ -333,7 +293,7 @@ public class MySQL {
         ResultSet results = null;
         ArrayList<PlayerData> profiles = new ArrayList<>();
         try{
-            con = DriverManager.getConnection(this.url, this.username, this.password);
+            con = this.connection;
             sql = con.prepareStatement("SELECT * FROM " + prefix + "profiles WHERE name=?;");
             sql.setString(1, name);
             results = sql.executeQuery();
@@ -359,9 +319,6 @@ public class MySQL {
             }
             if(sql != null){
                 try{sql.close();}catch(Exception e){}
-            }
-            if(con != null){
-                try{con.close();}catch(Exception e){}
             }
         }
     }
