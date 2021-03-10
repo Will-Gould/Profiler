@@ -8,7 +8,7 @@ Profiler uses Gradle to handle dependencies & building.
 
 #### Compiling from source
 ```sh
-git clone https://github.com/The-Juice-Man/Profiler.git
+git clone https://github.com/Will-Gould/Profiler.git
 cd Profiler/
 ./gradlew build
 ```
